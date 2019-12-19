@@ -1,0 +1,8 @@
+{
+  "name": "desafiofinal-gympoint",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:MatheusKindrazki/desafio-gostack-gympoint.git",
+  "author": "Matheus Kindrazki <matheuskindrazki@gmail.com>",
+  "license": "MIT"
+}
