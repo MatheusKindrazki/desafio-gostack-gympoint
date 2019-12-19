@@ -4,7 +4,9 @@ import Student from '../models/Student';
 
 class StudentController {
   async index(req, res) {
-    const students = await Student.findAll();
+    const students = await Student.findAll({
+      attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
+    });
 
     return res.json(students);
   }
@@ -12,7 +14,9 @@ class StudentController {
   async show(req, res) {
     const { id } = req.params;
 
-    const student = await Student.findByPk(id);
+    const student = await Student.findByPk(id, {
+      attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
+    });
 
     if (!student) {
       return res.status(400).json({ error: 'Student does not exist.' });
