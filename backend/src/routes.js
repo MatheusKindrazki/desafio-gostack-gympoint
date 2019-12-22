@@ -1,9 +1,8 @@
 import { Router } from 'express';
 
+import PlanController from './app/controllers/PlanController';
 import SessionController from './app/controllers/SessionController';
 import StudentController from './app/controllers/StudentController';
-import PlanController from './app/controllers/PlanController';
-
 import authMiddleware from './app/middlewares/auth';
 
 const routes = new Router();
