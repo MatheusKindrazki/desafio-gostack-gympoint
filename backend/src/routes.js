@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import EnrollmentController from './app/controllers/EnrollmentController';
 import PlanController from './app/controllers/PlanController';
 import SessionController from './app/controllers/SessionController';
 import StudentController from './app/controllers/StudentController';
@@ -25,5 +26,8 @@ routes.get('/plans/:id', PlanController.show);
 routes.post('/plans', PlanController.store);
 routes.put('/plans/:id', PlanController.update);
 routes.delete('/plans/:id', PlanController.delete);
+
+/** CRUD de Matriculas */
+routes.post('/enrollments', EnrollmentController.store);
 
 export default routes;
