@@ -4,9 +4,16 @@ import Plan from '../models/Plan';
 
 class PlanController {
   async index(req, res) {
-    const plans = await Plan.findAll();
+    const { page = 1, quantity = 20 } = req.query;
 
-    return res.json(plans);
+    const { rows: plans, count } = await Plan.findAndCountAll({
+      limit: quantity,
+      offset: (page - 1) * quantity,
+      attributes: ['id', 'title', 'duration', 'price'],
+      order: [['updated_at', 'desc']],
+    });
+
+    return res.set({ 'Total-Pages': Math.ceil(count / quantity) }).json(plans);
   }
 
   async show(req, res) {
