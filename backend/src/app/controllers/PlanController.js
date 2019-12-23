@@ -4,15 +4,26 @@ import Plan from '../models/Plan';
 
 class PlanController {
   async index(req, res) {
-    const plans = await Plan.findAll();
+    const { page = 1, quantity = 20 } = req.query;
 
-    return res.json(plans);
+    const { rows: plans, count } = await Plan.findAndCountAll({
+      limit: quantity,
+      offset: (page - 1) * quantity,
+      attributes: ['id', 'title', 'duration', 'price'],
+      order: [['updated_at', 'desc']],
+    });
+
+    return res.set({ 'Total-Pages': Math.ceil(count / quantity) }).json(plans);
   }
 
   async show(req, res) {
     const { id } = req.params;
 
     const plan = await Plan.findByPk(id);
+
+    if (!plan) {
+      return res.status(400).json({ error: 'Plan does not exist.' });
+    }
 
     return res.json(plan);
   }
@@ -36,9 +47,10 @@ class PlanController {
       return res.status(400).json({ error: 'Plan already exists.' });
     }
 
-    const { title, duration, price } = await Plan.create(req.body);
+    const { id, title, duration, price } = await Plan.create(req.body);
 
     return res.json({
+      id,
       title,
       duration,
       price,
@@ -78,7 +90,10 @@ class PlanController {
 
     const { title, duration, price } = await plan.update(req.body);
 
+    await plan.save();
+
     return res.json({
+      id,
       title,
       duration,
       price,
@@ -94,7 +109,7 @@ class PlanController {
       return res.status(400).json({ error: 'Plan does not exist.' });
     }
 
-    await Plan.destroy({ where: { id } });
+    await plan.destroy();
 
     return res.json({ message: 'Plan deleted successfully.' });
   }
