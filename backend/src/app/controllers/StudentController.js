@@ -4,11 +4,18 @@ import Student from '../models/Student';
 
 class StudentController {
   async index(req, res) {
-    const students = await Student.findAll({
+    const { page = 1, quantity = 20 } = req.query;
+
+    const { rows: students, count } = await Student.findAndCountAll({
+      limit: quantity,
+      offset: (page - 1) * quantity,
       attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
+      order: [['updated_at', 'desc']],
     });
 
-    return res.json(students);
+    return res
+      .set({ 'Total-Pages': Math.ceil(count / quantity) })
+      .json(students);
   }
 
   async show(req, res) {
