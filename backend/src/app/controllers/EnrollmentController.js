@@ -86,7 +86,7 @@ class EnrollmentController {
     const price = plan.duration * plan.price;
     const end_date = addMonths(parseISO(start_date), plan.duration);
 
-    await Enrollment.create({
+    const { id } = await Enrollment.create({
       student_id,
       plan_id,
       start_date,
@@ -95,12 +95,90 @@ class EnrollmentController {
     });
 
     return res.json({
+      id,
       student_id,
       plan_id,
       price,
       start_date,
       end_date,
     });
+  }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      student_id: Yup.number().required(),
+      plan_id: Yup.number().required(),
+      start_date: Yup.date().required(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation failed' });
+    }
+
+    const { id } = req.params;
+    const { student_id, plan_id, start_date } = req.body;
+
+    const enrollment = await Enrollment.findByPk(id);
+    const plan = await Plan.findByPk(plan_id);
+
+    // Verifica se o administrador pode editar
+    if (student_id !== enrollment.student_id) {
+      const studentEnrollmentExists = await Enrollment.findOne({
+        where: { student_id },
+      });
+
+      if (studentEnrollmentExists) {
+        return res
+          .status(401)
+          .json({ error: 'A enrollment with this student already exists' });
+      }
+    }
+
+    let { price, end_date } = enrollment;
+
+    // Calcula o preço completo e a data de término
+    if (plan_id !== enrollment.plan_id) {
+      price = plan.duration * plan.price;
+      end_date = addMonths(parseISO(start_date), plan.duration);
+    }
+
+    // Calcula a nova data final
+    if (start_date !== enrollment.start_date) {
+      end_date = addMonths(parseISO(start_date), plan.duration);
+    }
+
+    await enrollment.update({
+      student_id,
+      plan_id,
+      start_date,
+      end_date,
+      price,
+    });
+
+    await enrollment.save();
+
+    return res.json({
+      id,
+      student_id,
+      plan_id,
+      price,
+      start_date,
+      end_date,
+    });
+  }
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const enrollment = await Enrollment.findByPk(id);
+
+    if (!enrollment) {
+      return res.status(400).json({ error: 'Enrollment does not exist.' });
+    }
+
+    await enrollment.destroy();
+
+    return res.json({ message: 'Enrollment deleted successfully.' });
   }
 }
 
