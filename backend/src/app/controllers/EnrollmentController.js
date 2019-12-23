@@ -3,8 +3,36 @@ import * as Yup from 'yup';
 
 import Enrollment from '../models/Enrollment';
 import Plan from '../models/Plan';
+import Student from '../models/Student';
 
 class EnrollmentController {
+  async index(req, res) {
+    const { page = 1, quantity = 20 } = req.query;
+
+    const { rows: enrollments, count } = await Enrollment.findAndCountAll({
+      limit: quantity,
+      offset: (page - 1) * quantity,
+      attributes: ['id', 'start_date', 'end_date', 'price', 'active'],
+      include: [
+        {
+          model: Student,
+          as: 'student',
+          attributes: ['id', 'name', 'email'],
+        },
+        {
+          model: Plan,
+          as: 'plan',
+          attributes: ['id', 'title', 'duration', 'price'],
+        },
+      ],
+      order: [['updated_at', 'desc']],
+    });
+
+    return res
+      .set({ 'Total-Pages': Math.ceil(count / quantity) })
+      .json(enrollments);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       student_id: Yup.number().required(),
@@ -33,7 +61,7 @@ class EnrollmentController {
     const price = plan.duration * plan.price;
     const end_date = addMonths(parseISO(start_date), plan.duration);
 
-    const enrollment = await Enrollment.create({
+    await Enrollment.create({
       student_id,
       plan_id,
       start_date,
@@ -41,7 +69,13 @@ class EnrollmentController {
       price,
     });
 
-    return res.json(enrollment);
+    return res.json({
+      student_id,
+      plan_id,
+      price,
+      start_date,
+      end_date,
+    });
   }
 }
 

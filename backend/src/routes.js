@@ -28,6 +28,7 @@ routes.put('/plans/:id', PlanController.update);
 routes.delete('/plans/:id', PlanController.delete);
 
 /** CRUD de Matriculas */
+routes.get('/enrollments', EnrollmentController.index);
 routes.post('/enrollments', EnrollmentController.store);
 
 export default routes;
