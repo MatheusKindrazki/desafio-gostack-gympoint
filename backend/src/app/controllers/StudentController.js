@@ -4,11 +4,18 @@ import Student from '../models/Student';
 
 class StudentController {
   async index(req, res) {
-    const students = await Student.findAll({
+    const { page = 1, quantity = 20 } = req.query;
+
+    const { rows: students, count } = await Student.findAndCountAll({
+      limit: quantity,
+      offset: (page - 1) * quantity,
       attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
+      order: [['updated_at', 'desc']],
     });
 
-    return res.json(students);
+    return res
+      .set({ 'Total-Pages': Math.ceil(count / quantity) })
+      .json(students);
   }
 
   async show(req, res) {
@@ -48,9 +55,12 @@ class StudentController {
       return res.status(400).json({ error: 'Student already exists.' });
     }
 
-    const { name, email, age, weight, height } = await Student.create(req.body);
+    const { id, name, email, age, weight, height } = await Student.create(
+      req.body
+    );
 
     return res.json({
+      id,
       name,
       email,
       age,
@@ -94,13 +104,30 @@ class StudentController {
 
     const { name, email, age, weight, height } = await student.update(req.body);
 
+    await student.save();
+
     return res.json({
+      id,
       name,
       email,
       age,
       weight,
       height,
     });
+  }
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const student = await Student.findByPk(id);
+
+    if (!student) {
+      return res.status(400).json({ error: 'Student does not exist.' });
+    }
+
+    await student.destroy();
+
+    return res.json({ message: 'Student deleted successfully.' });
   }
 }
 
