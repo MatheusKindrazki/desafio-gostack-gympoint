@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import CheckinController from './app/controllers/CheckinController';
 import EnrollmentController from './app/controllers/EnrollmentController';
 import PlanController from './app/controllers/PlanController';
 import SessionController from './app/controllers/SessionController';
@@ -10,6 +11,10 @@ const routes = new Router();
 
 /** Cria a Sessão do Usuário */
 routes.post('/sessions', SessionController.store);
+
+/** Checkin do Aluno */
+routes.get('/students/:id/checkins', CheckinController.index);
+routes.post('/students/:id/checkins', CheckinController.store);
 
 /** Autênticação das rotas */
 routes.use(authMiddleware);
