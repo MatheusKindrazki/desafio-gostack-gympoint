@@ -51,9 +51,7 @@ class HelpAcademyController {
     });
 
     if (helpOrder.answer_at) {
-      return res
-        .status(401)
-        .json({ error: 'You can only answer a help order once' });
+      return res.status(401).json({ error: 'Help order already answered' });
     }
 
     await helpOrder.update({ answer, answer_at: new Date() });
