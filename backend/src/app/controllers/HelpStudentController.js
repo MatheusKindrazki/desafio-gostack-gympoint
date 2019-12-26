@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import Enrollment from '../models/Enrollment';
 import HelpOrder from '../models/HelpOrder';
 
-class HelpOrderController {
+class HelpStudentController {
   async index(req, res) {
     const { page = 1, quantity = 20 } = req.query;
 
@@ -48,4 +48,4 @@ class HelpOrderController {
   }
 }
 
-export default new HelpOrderController();
+export default new HelpStudentController();

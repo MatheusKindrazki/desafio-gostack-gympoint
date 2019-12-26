@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import CheckinController from './app/controllers/CheckinController';
 import EnrollmentController from './app/controllers/EnrollmentController';
+import HelpStudentController from './app/controllers/HelpStudentController';
 import PlanController from './app/controllers/PlanController';
 import SessionController from './app/controllers/SessionController';
 import StudentController from './app/controllers/StudentController';
@@ -15,6 +16,10 @@ routes.post('/sessions', SessionController.store);
 /** Checkin do Aluno */
 routes.get('/students/:id/checkins', CheckinController.index);
 routes.post('/students/:id/checkins', CheckinController.store);
+
+/** Help Order do Aluno */
+routes.get('/students/:id/help-orders', HelpStudentController.index);
+routes.post('/students/:id/help-orders', HelpStudentController.store);
 
 /** Autênticação das rotas */
 routes.use(authMiddleware);
